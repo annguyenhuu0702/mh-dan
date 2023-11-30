@@ -1,0 +1,182 @@
+import { NextFunction, Request, Response } from "express";
+import { prisma } from "../../db";
+import { BadRequest } from "../../middlewares/request-handlers";
+import { hashPassword } from "../../plugins/auth";
+
+const createAdminUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { code, userName, fullName, password, role, departmentId, adminId } =
+      req.body;
+    const adminUser = await prisma.adminUser.findFirst({
+      where: {
+        userName,
+      },
+    });
+    if (adminUser) {
+      throw new BadRequest({
+        message: "User name already exists",
+      });
+    }
+    const hash = hashPassword(password);
+    const newAdminUser = await prisma.adminUser.create({
+      data: {
+        code,
+        userName,
+        fullName,
+        hash,
+        role,
+        departmentId,
+        adminId,
+      },
+    });
+
+    res.status(201).json({
+      message: "Admin user created",
+      data: newAdminUser,
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log("🚀 ~ file: adminUserController.ts:42 ~ error:", error);
+    next(error);
+  }
+};
+
+const updateAdminUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const { code, userName, fullName, password, role, departmentId, adminId } =
+      req.body;
+    const adminUser = await prisma.adminUser.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!adminUser) {
+      throw new BadRequest({
+        message: "Admin user not found",
+      });
+    }
+    const hash = hashPassword(password);
+    const updatedAdminUser = await prisma.adminUser.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        code,
+        userName,
+        fullName,
+        hash,
+        role,
+        departmentId,
+        adminId,
+      },
+    });
+    res.status(200).json({
+      message: "Admin user updated",
+      data: updatedAdminUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllAdminUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const take = limit;
+    const skip = (page - 1) * limit;
+    const adminUsers = await prisma.adminUser.findMany({
+      take,
+      skip,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    const totalAdminUser = await prisma.adminUser.count();
+    res.status(200).json({
+      message: "Admin users fetched",
+      data: {
+        adminUsers,
+        meta: {
+          page,
+          limit,
+          total: totalAdminUser,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAdminUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const adminUser = await prisma.adminUser.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!adminUser) {
+      throw new BadRequest({
+        message: "Admin user not found",
+      });
+    }
+    res.status(200).json({
+      message: "Admin user fetched",
+      data: adminUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteAdminUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { ids } = req.query;
+
+    const idArray = Array.isArray(ids) ? ids.map(Number) : [Number(ids)];
+
+    await prisma.adminUser.deleteMany({
+      where: {
+        id: {
+          in: idArray,
+        },
+      },
+    });
+    res.status(200).json({
+      message: "Admin user deleted",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  createAdminUser,
+  getAllAdminUsers,
+  getAdminUserById,
+  updateAdminUser,
+  deleteAdminUsers,
+};
