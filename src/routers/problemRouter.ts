@@ -6,11 +6,13 @@ import {
   getProblemById,
   updateProblem,
 } from "../controllers/problem";
+import { adminMiddleware } from "../middlewares/auth/adminMiddleware";
+import { problemMiddleware } from "../middlewares/auth/problemMiddleware";
 
 export const problemRouter = Router();
 
-problemRouter.post("/create", createProblem);
-problemRouter.post("/update/:id", updateProblem);
-problemRouter.delete("/delete", deleteProblems);
-problemRouter.get("/", getAllProblem);
-problemRouter.get("/:id", getProblemById);
+problemRouter.post("/create", [adminMiddleware], createProblem);
+problemRouter.post("/update/:id", [problemMiddleware], updateProblem);
+problemRouter.delete("/delete", [adminMiddleware], deleteProblems);
+problemRouter.get("/", [problemMiddleware], getAllProblem);
+problemRouter.get("/:id", [problemMiddleware], getProblemById);
