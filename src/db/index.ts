@@ -23,16 +23,15 @@ const useDeletedMiddleware = async (
       if (
         params.action == "findMany" ||
         params.action === "count" ||
-        params.action === "findUnique"
+        params.action === "findUnique" ||
+        params.action === "findFirst"
       ) {
         // Find queries
         // Add condition for not deleted
         if (params.args && params.args["where"]) {
           params.args["where"] = {
             ...(params.args?.["where"] ?? {}),
-            deleted: {
-              isSet: false,
-            },
+            deleted: null,
           };
         }
       } else if (params.action == "delete" || params.action == "deleteMany") {

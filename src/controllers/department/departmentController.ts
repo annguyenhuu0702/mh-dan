@@ -117,7 +117,8 @@ const getDepartmentById = async (
 ) => {
   try {
     const { id } = req.params;
-    const department = await prisma.department.findUnique({
+
+    const department = await prisma.department.findFirst({
       where: {
         id: parseInt(id),
       },
