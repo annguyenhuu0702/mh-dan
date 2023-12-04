@@ -94,6 +94,7 @@ const getAllDepartment = async (
       },
     });
     const totalDepartment = await prisma.department.count();
+
     res.status(200).json({
       message: "Departments fetched successfully",
       data: {

@@ -106,10 +106,26 @@ const getAllAdminUsers = async (
       },
     });
     const totalAdminUser = await prisma.adminUser.count();
+    const adminUsersPromise = await Promise.all(
+      adminUsers.map(async (adminUser) => {
+        const department = await prisma.department.findUnique({
+          where: {
+            id: adminUser.departmentId,
+          },
+          select: {
+            name: true,
+          },
+        });
+        return {
+          ...adminUser,
+          departmentName: department?.name,
+        };
+      })
+    );
     res.status(200).json({
       message: "Admin users fetched",
       data: {
-        adminUsers,
+        adminUsers: adminUsersPromise,
         meta: {
           page,
           limit,
