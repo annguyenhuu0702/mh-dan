@@ -4,7 +4,7 @@ import { prisma } from "../../db";
 import jwt from "jsonwebtoken";
 import { omit } from "lodash";
 
-const problemMiddleware = async (
+const authCommonMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -38,4 +38,4 @@ const problemMiddleware = async (
   }
 };
 
-export { problemMiddleware };
+export { authCommonMiddleware };

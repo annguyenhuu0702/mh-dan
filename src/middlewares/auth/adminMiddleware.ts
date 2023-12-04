@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../db";
 import { BadRequest } from "../request-handlers";
+import { omit } from "lodash";
 
 const adminMiddleware = async (
   req: Request,
@@ -21,7 +22,7 @@ const adminMiddleware = async (
         message: "Unauthorized",
       });
     }
-    req.user = user;
+    req.user = omit(user, ["hash"]);
     return next();
   } catch (error) {
     return res.status(401).send({ error: "Unauthenticated!" });
