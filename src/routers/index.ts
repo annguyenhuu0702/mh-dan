@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { adminUserRouter } from "./adminUserRouter";
 import { adminRouter } from "./adminRouter";
-import { authRouter } from "./auth";
+import { authRouter } from "./authRouter";
 import { departmentRouter } from "./departmentRouter";
 import { problemRouter } from "./problemRouter";
 

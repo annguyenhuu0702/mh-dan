@@ -55,4 +55,53 @@ const changePasswordAdmin = async (
   }
 };
 
-export { changePasswordAdminUser, changePasswordAdmin };
+const updateProfileAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user as Admin;
+    const { fullName, userName } = req.body;
+    await prisma.admin.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        fullName,
+        userName,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateProfileAdminUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user as AdminUser;
+    const { fullName, userName } = req.body;
+    await prisma.adminUser.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        fullName,
+        userName,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  changePasswordAdminUser,
+  changePasswordAdmin,
+  updateProfileAdmin,
+  updateProfileAdminUser,
+};

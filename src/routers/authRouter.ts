@@ -5,7 +5,9 @@ import { omit } from "lodash";
 import {
   changePasswordAdmin,
   changePasswordAdminUser,
-} from "../controllers/authController.ts/authController";
+  updateProfileAdmin,
+  updateProfileAdminUser,
+} from "../controllers/authController";
 
 export const authRouter = Router();
 
@@ -16,7 +18,6 @@ authRouter.post(
     res.status(200).json({ message: "Success", data: req.user });
   }
 );
-
 authRouter.get(
   "/profile",
   [authCommonMiddleware],
@@ -26,7 +27,6 @@ authRouter.get(
       .json({ message: "Success", data: omit(req.user, ["hash"]) });
   }
 );
-
 authRouter.put(
   "/admin/change-password",
   [authCommonMiddleware],
@@ -36,4 +36,17 @@ authRouter.put(
   "/admin-user/change-password",
   [authCommonMiddleware],
   changePasswordAdminUser
+);
+//   updateProfileAdmin,
+//   updateProfileAdminUser,
+authRouter.put(
+  "/admin/update-profile",
+  [authCommonMiddleware],
+  updateProfileAdmin
+);
+
+authRouter.put(
+  "/admin-user/update-profile",
+  [authCommonMiddleware],
+  updateProfileAdminUser
 );
