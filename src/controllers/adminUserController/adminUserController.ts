@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { prisma } from "../../db";
 import { BadRequest } from "../../middlewares/request-handlers";
 import { hashPassword } from "../../plugins/auth";
+import { omit } from "lodash";
 
 const createAdminUser = async (
   req: Request,
@@ -36,7 +37,7 @@ const createAdminUser = async (
 
     res.status(201).json({
       message: "Admin user created",
-      data: newAdminUser,
+      data: omit(newAdminUser, ["hash"]),
     });
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -81,7 +82,7 @@ const updateAdminUser = async (
     });
     res.status(200).json({
       message: "Admin user updated",
-      data: updatedAdminUser,
+      data: omit(updatedAdminUser, ["hash"]),
     });
   } catch (error) {
     next(error);
@@ -108,6 +109,8 @@ const getAllAdminUsers = async (
     const totalAdminUser = await prisma.adminUser.count();
     const adminUsersPromise = await Promise.all(
       adminUsers.map(async (adminUser) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { hash, ...rest } = adminUser;
         const department = await prisma.department.findUnique({
           where: {
             id: adminUser.departmentId,
@@ -117,7 +120,7 @@ const getAllAdminUsers = async (
           },
         });
         return {
-          ...adminUser,
+          ...rest,
           departmentName: department?.name,
         };
       })
@@ -157,7 +160,7 @@ const getAdminUserById = async (
     }
     res.status(200).json({
       message: "Admin user fetched",
-      data: adminUser,
+      data: omit(adminUser, ["hash"]),
     });
   } catch (error) {
     next(error);

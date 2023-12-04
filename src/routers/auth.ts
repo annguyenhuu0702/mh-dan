@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
 import passport from "passport";
 import { authCommonMiddleware } from "../middlewares/auth";
+import { omit } from "lodash";
 
 export const authRouter = Router();
 
@@ -17,7 +18,8 @@ authRouter.get(
   "/profile",
   [authCommonMiddleware],
   (req: Request, res: Response) => {
-    console.log(req.user);
-    res.status(200).json({ message: "Success", data: req.user });
+    res
+      .status(200)
+      .json({ message: "Success", data: omit(req.user, ["hash"]) });
   }
 );
