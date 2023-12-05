@@ -7,7 +7,16 @@ const createProblem = async (
   next: NextFunction
 ) => {
   try {
-    const { adminUserId, title, industry, contact, status, note } = req.body;
+    const {
+      adminUserId,
+      title,
+      industry,
+      contact,
+      status,
+      note,
+      processingDate,
+    } = req.body;
+
     const problem = await prisma.problem.create({
       data: {
         adminUserId,
@@ -16,6 +25,7 @@ const createProblem = async (
         contact,
         status,
         note,
+        processingDate,
       },
     });
     res.status(201).json({
@@ -34,7 +44,15 @@ const updateProblem = async (
 ) => {
   try {
     const { id } = req.params;
-    const { adminUserId, title, industry, contact, status, note } = req.body;
+    const {
+      adminUserId,
+      title,
+      industry,
+      contact,
+      status,
+      note,
+      processingDate,
+    } = req.body;
     const problem = await prisma.problem.update({
       where: {
         id: Number(id),
@@ -46,6 +64,7 @@ const updateProblem = async (
         contact,
         status,
         note,
+        processingDate,
       },
     });
     res.status(200).json({
@@ -137,8 +156,8 @@ const getProblemById = async (
 };
 export {
   createProblem,
-  updateProblem,
   deleteProblems,
   getAllProblem,
   getProblemById,
+  updateProblem,
 };

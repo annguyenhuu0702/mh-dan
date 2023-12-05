@@ -47,14 +47,14 @@ model Department {
 
 model Problem {
   id             Int       @id @default(autoincrement())
-  adminUserId    Int       @unique
+  adminUserId    Int
   title          String
   industry       String
   contact        String
   status         String
   processingDate DateTime?
   note           String?
-  watingdate     DateTime?
+  watingDate     DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   deleted        DateTime?
