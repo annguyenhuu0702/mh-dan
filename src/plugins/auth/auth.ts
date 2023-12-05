@@ -10,10 +10,29 @@ const comparePassword = (password: string, hash: string) => {
   return bcrypt.compareSync(password, hash);
 };
 
-const createToken = (user: Admin | AdminUser) => {
-  return jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-    expiresIn: "24d",
-  });
+const createTokenAdmin = (user: Admin) => {
+  return jwt.sign(
+    { id: user.id, fullName: user.fullName },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "24d",
+    }
+  );
 };
 
-export { comparePassword, createToken, hashPassword };
+const createTokenAdminUser = (user: AdminUser) => {
+  return jwt.sign(
+    { id: user.id, fullName: user.fullName, role: user.role },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "24d",
+    }
+  );
+};
+
+export {
+  comparePassword,
+  createTokenAdmin,
+  hashPassword,
+  createTokenAdminUser,
+};

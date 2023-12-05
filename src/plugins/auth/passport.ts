@@ -2,7 +2,11 @@ import passport from "passport";
 import { ExtractJwt, Strategy as JWTStrategy } from "passport-jwt";
 import { Strategy as LocalStrategy } from "passport-local";
 import { prisma } from "../../db";
-import { comparePassword, createToken } from "./auth";
+import {
+  comparePassword,
+  createTokenAdmin,
+  createTokenAdminUser,
+} from "./auth";
 
 passport.use(
   new LocalStrategy(
@@ -26,8 +30,9 @@ passport.use(
         if (!comparePassword(password, admin.hash)) {
           return done(null, false, { message: "Invalid credentials" });
         }
+
         return done(null, {
-          token: createToken(admin),
+          token: createTokenAdmin(admin),
           admin: {
             id: admin.id,
             fullName: admin.fullName,
@@ -46,7 +51,7 @@ passport.use(
           return done(null, false, { message: "Invalid credentials" });
         }
         return done(null, {
-          token: createToken(adminUser),
+          token: createTokenAdminUser(adminUser),
           adminUser: {
             id: adminUser.id,
             fullName: adminUser.fullName,
@@ -75,7 +80,7 @@ passport.use(
 
       if (admin) {
         return done(null, {
-          token: createToken(admin),
+          token: createTokenAdmin(admin),
           admin: {
             id: admin.id,
             fullName: admin.fullName,
@@ -91,7 +96,7 @@ passport.use(
 
       if (adminUser) {
         return done(null, {
-          token: createToken(adminUser),
+          token: createTokenAdminUser(adminUser),
           adminUser: {
             id: adminUser.id,
             fullName: adminUser.fullName,

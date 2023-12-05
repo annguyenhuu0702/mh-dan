@@ -37,8 +37,7 @@ authRouter.put(
   [authCommonMiddleware],
   changePasswordAdminUser
 );
-//   updateProfileAdmin,
-//   updateProfileAdminUser,
+
 authRouter.put(
   "/admin/update-profile",
   [authCommonMiddleware],

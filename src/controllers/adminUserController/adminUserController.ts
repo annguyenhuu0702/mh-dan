@@ -53,8 +53,7 @@ const updateAdminUser = async (
 ) => {
   try {
     const { id } = req.params;
-    const { code, userName, fullName, password, role, departmentId, adminId } =
-      req.body;
+    const { code, userName, fullName, role, departmentId, adminId } = req.body;
     const adminUser = await prisma.adminUser.findUnique({
       where: {
         id: parseInt(id),
@@ -65,7 +64,6 @@ const updateAdminUser = async (
         message: "Admin user not found",
       });
     }
-    const hash = hashPassword(password);
     const updatedAdminUser = await prisma.adminUser.update({
       where: {
         id: parseInt(id),
@@ -74,7 +72,6 @@ const updateAdminUser = async (
         code,
         userName,
         fullName,
-        hash,
         role,
         departmentId,
         adminId,
