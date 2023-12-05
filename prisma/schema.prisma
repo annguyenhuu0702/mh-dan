@@ -54,7 +54,6 @@ model Problem {
   status         String
   processingDate DateTime?
   note           String?
-  watingDate     DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   deleted        DateTime?

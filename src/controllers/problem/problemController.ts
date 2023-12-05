@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../../db";
+import { round } from "lodash";
 
 const createProblem = async (
   req: Request,
@@ -118,10 +119,25 @@ const getAllProblem = async (
       },
     });
     const totalProblem = await prisma.problem.count();
+
+    const problemsPromise = await Promise.all(
+      problems.map(async (problem) => {
+        const processingDate = new Date(problem.processingDate);
+        const createdAt = new Date(problem.createdAt);
+        // Calculate the difference in days
+        const timeDifference = processingDate.getTime() - createdAt.getTime();
+        const differenceInDays = timeDifference / (1000 * 3600 * 24);
+        return {
+          ...problem,
+          waitingDate: round(differenceInDays),
+        };
+      })
+    );
+
     res.status(200).json({
       message: "Problem fetched successfully",
       data: {
-        problems,
+        problems: problemsPromise,
         meta: {
           page,
           limit,
