@@ -11,7 +11,7 @@ import { problemMiddleware } from "../middlewares/auth/problemMiddleware";
 
 export const problemRouter = Router();
 
-problemRouter.post("/create", [adminMiddleware], createProblem);
+problemRouter.post("/create", [problemMiddleware], createProblem);
 problemRouter.put("/update/:id", [problemMiddleware], updateProblem);
 problemRouter.delete("/delete", [adminMiddleware], deleteProblems);
 problemRouter.get("/", [problemMiddleware], getAllProblem);
