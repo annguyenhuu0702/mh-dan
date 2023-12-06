@@ -48,6 +48,7 @@ model Department {
 model Problem {
   id             Int       @id @default(autoincrement())
   adminUserId    Int
+  departmentId   Int
   title          String
   industry       String
   contact        String

@@ -4,6 +4,7 @@ import {
   deleteProblems,
   getAllProblem,
   getProblemById,
+  problemReport,
   updateProblem,
 } from "../controllers/problem";
 import { adminMiddleware } from "../middlewares/auth/adminMiddleware";
@@ -16,3 +17,4 @@ problemRouter.put("/update/:id", [problemMiddleware], updateProblem);
 problemRouter.delete("/delete", [adminMiddleware], deleteProblems);
 problemRouter.get("/", [problemMiddleware], getAllProblem);
 problemRouter.get("/:id", [problemMiddleware], getProblemById);
+problemRouter.get("/report", [adminMiddleware], problemReport);

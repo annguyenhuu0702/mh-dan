@@ -18,7 +18,13 @@ const problemMiddleware = async (
       },
     });
     if (admin) {
-      req.user = omit(admin, ["hash"]);
+      req.user = omit(
+        {
+          ...admin,
+          role: "superAdmin",
+        },
+        ["hash"]
+      );
       return next();
     }
     const adminUser = await prisma.adminUser.findUnique({
