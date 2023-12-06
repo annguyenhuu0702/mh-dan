@@ -234,16 +234,10 @@ const problemReport = async (
 
     const problems = await prisma.problem.findMany({
       where: {
-        ...(startDate
+        ...(startDate && endDate
           ? {
               createdAt: {
                 gte: moment(startDate as string).toDate(),
-              },
-            }
-          : {}),
-        ...(endDate
-          ? {
-              createdAt: {
                 lte: moment(endDate as string).toDate(),
               },
             }
@@ -260,6 +254,7 @@ const problemReport = async (
           : {}),
       },
     });
+    console.log("🚀 ~ file: problemController.ts:268 ~ problems:", problems);
     res.status(200).json({
       message: "Problem fetched successfully",
       data: problems,
