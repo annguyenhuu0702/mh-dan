@@ -23,7 +23,7 @@ const useDeletedMiddleware = async (
       if (
         params.action == "findMany" ||
         params.action === "count" ||
-        params.action === "findUnique" ||
+        // params.action === "findUnique" ||
         params.action === "findFirst"
       ) {
         // Find queries

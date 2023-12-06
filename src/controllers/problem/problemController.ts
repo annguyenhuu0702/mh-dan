@@ -1,8 +1,10 @@
+/* eslint-disable no-console */
 import { NextFunction, Request, Response } from "express";
 import { round } from "lodash";
 import { prisma } from "../../db";
 import { ROLE } from "../../constants/role";
 import { Problem } from "@prisma/client";
+import moment from "moment";
 
 const createProblem = async (
   req: Request,
@@ -217,6 +219,7 @@ const getProblemById = async (
       data: problem,
     });
   } catch (error) {
+    console.log("🚀 ~ file: problemController.ts:222 ~ error:", error);
     next(error);
   }
 };
@@ -227,12 +230,43 @@ const problemReport = async (
   next: NextFunction
 ) => {
   try {
+    const { startDate, endDate, departmentId, industry } = req.query;
+
+    const problems = await prisma.problem.findMany({
+      where: {
+        ...(startDate
+          ? {
+              createdAt: {
+                gte: moment(startDate as string).toDate(),
+              },
+            }
+          : {}),
+        ...(endDate
+          ? {
+              createdAt: {
+                lte: moment(endDate as string).toDate(),
+              },
+            }
+          : {}),
+        ...(departmentId
+          ? {
+              departmentId: Number(departmentId),
+            }
+          : {}),
+        ...(industry
+          ? {
+              industry: industry as string,
+            }
+          : {}),
+      },
+    });
+    res.status(200).json({
+      message: "Problem fetched successfully",
+      data: problems,
+    });
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.log(
-      "🚀 ~ file: problemController.ts:178 ~ problemReport ~ error:",
-      error
-    );
+    console.log("🚀 ~ file: problemController.ts:268 ~ error:", error);
     next(error);
   }
 };
