@@ -254,7 +254,6 @@ const problemReport = async (
           : {}),
       },
     });
-    console.log("🚀 ~ file: problemController.ts:268 ~ problems:", problems);
     res.status(200).json({
       message: "Problem fetched successfully",
       data: problems,

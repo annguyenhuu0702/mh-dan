@@ -16,5 +16,9 @@ problemRouter.post("/create", [problemMiddleware], createProblem);
 problemRouter.put("/update/:id", [problemMiddleware], updateProblem);
 problemRouter.delete("/delete", [adminMiddleware], deleteProblems);
 problemRouter.get("/", [problemMiddleware], getAllProblem);
-// problemRouter.get("/:id", [problemMiddleware], getProblemById);
-problemRouter.get("/report", [adminMiddleware], problemReport);
+problemRouter.get("/:id", [problemMiddleware], getProblemById);
+problemRouter.get(
+  "/report/department-industry",
+  [adminMiddleware],
+  problemReport
+);
