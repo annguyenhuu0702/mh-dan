@@ -138,10 +138,31 @@ const getDepartmentById = async (
   }
 };
 
+const getAllDepartmentNoPagination = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const departments = await prisma.department.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    res.status(200).json({
+      message: "Departments fetched successfully",
+      data: departments,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   createDepartment,
   updateDepartment,
   deleteDepartments,
   getAllDepartment,
   getDepartmentById,
+  getAllDepartmentNoPagination,
 };

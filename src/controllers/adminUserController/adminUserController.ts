@@ -189,10 +189,49 @@ const deleteAdminUsers = async (
   }
 };
 
+const getAllAdminUsersNoPagination = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const adminUsers = await prisma.adminUser.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    const adminUsersPromise = await Promise.all(
+      adminUsers.map(async (adminUser) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { hash, ...rest } = adminUser;
+        const department = await prisma.department.findUnique({
+          where: {
+            id: adminUser.departmentId,
+          },
+          select: {
+            name: true,
+          },
+        });
+        return {
+          ...rest,
+          departmentName: department?.name,
+        };
+      })
+    );
+    res.status(200).json({
+      message: "Admin users fetched",
+      data: adminUsersPromise,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   createAdminUser,
   getAllAdminUsers,
   getAdminUserById,
   updateAdminUser,
   deleteAdminUsers,
+  getAllAdminUsersNoPagination,
 };
