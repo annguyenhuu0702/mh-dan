@@ -11,19 +11,11 @@ const authCommonMiddleware = async (
 ) => {
   try {
     const accessToken = req.headers?.authorization?.split(" ")[1] || "";
-    console.log(
-      "🚀 ~ file: authCommonMiddleware.ts:14 ~ accessToken:",
-      accessToken
-    );
+
     const { id, role } = jwt.decode(accessToken) as {
       id: number;
       role: string;
     };
-    console.log(
-      "🚀 ~ file: authCommonMiddleware.ts:15 ~ const{id,role}=jwt.decode ~ id:",
-      id,
-      role
-    );
 
     const adminUser = await prisma.adminUser.findUnique({
       where: {
