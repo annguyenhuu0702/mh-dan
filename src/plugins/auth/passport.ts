@@ -36,6 +36,7 @@ passport.use(
           admin: {
             id: admin.id,
             fullName: admin.fullName,
+            role: "superAdmin",
           },
         });
       }
@@ -84,6 +85,7 @@ passport.use(
           admin: {
             id: admin.id,
             fullName: admin.fullName,
+            role: "superAdmin",
           },
         });
       }

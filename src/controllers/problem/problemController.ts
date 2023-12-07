@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
-import { NextFunction, Request, Response } from "express";
-import { round } from "lodash";
-import { prisma } from "../../db";
-import { ROLE } from "../../constants/role";
 import { Problem } from "@prisma/client";
+import { NextFunction, Request, Response } from "express";
 import moment from "moment";
+import { ROLE } from "../../constants/role";
+import { prisma } from "../../db";
 
 const createProblem = async (
   req: Request,
@@ -19,8 +18,8 @@ const createProblem = async (
       contact,
       status,
       note,
-      processingDate,
       departmentId,
+      reciever,
     } = req.body;
 
     const problem = await prisma.problem.create({
@@ -30,9 +29,9 @@ const createProblem = async (
         title,
         industry,
         contact,
-        status,
+        status: status ?? "unprocessed",
         note,
-        processingDate,
+        reciever,
       },
     });
     res.status(201).json({
@@ -51,15 +50,8 @@ const updateProblem = async (
 ) => {
   try {
     const { id } = req.params;
-    const {
-      adminUserId,
-      title,
-      industry,
-      contact,
-      status,
-      note,
-      processingDate,
-    } = req.body;
+    const { adminUserId, title, industry, contact, status, note, reciever } =
+      req.body;
     const problem = await prisma.problem.update({
       where: {
         id: Number(id),
@@ -71,7 +63,7 @@ const updateProblem = async (
         contact,
         status,
         note,
-        processingDate,
+        reciever,
       },
     });
     res.status(200).json({
@@ -119,9 +111,9 @@ const getAllProblem = async (
     const limit = Number(req.query.limit) || 10;
     const take = limit;
     const skip = (page - 1) * limit;
+
     let problems: Problem[];
     let totalProblem: number;
-
     if (user.role !== ROLE.SUPER_ADMIN) {
       problems = await prisma.problem.findMany({
         take,
@@ -140,17 +132,24 @@ const getAllProblem = async (
       });
       const problemsPromise = await Promise.all(
         problems.map(async (problem) => {
-          const processingDate = new Date(problem.processingDate);
-          const createdAt = new Date(problem.createdAt);
-          // Calculate the difference in days
-          const timeDifference = processingDate.getTime() - createdAt.getTime();
-          const differenceInDays = timeDifference / (1000 * 3600 * 24);
+          const department = await prisma.department.findUnique({
+            where: {
+              id: problem.departmentId,
+            },
+          });
+          const adminUser = await prisma.adminUser.findUnique({
+            where: {
+              id: problem.adminUserId,
+            },
+          });
           return {
             ...problem,
-            waitingDate: round(differenceInDays),
+            departmentName: department?.name,
+            adminUserName: adminUser?.fullName,
           };
         })
       );
+
       return res.status(200).json({
         message: "Problem fetched successfully",
         data: {
@@ -174,14 +173,20 @@ const getAllProblem = async (
     totalProblem = await prisma.problem.count();
     const problemsPromise = await Promise.all(
       problems.map(async (problem) => {
-        const processingDate = new Date(problem.processingDate);
-        const createdAt = new Date(problem.createdAt);
-        // Calculate the difference in days
-        const timeDifference = processingDate.getTime() - createdAt.getTime();
-        const differenceInDays = timeDifference / (1000 * 3600 * 24);
+        const department = await prisma.department.findUnique({
+          where: {
+            id: problem.departmentId,
+          },
+        });
+        const adminUser = await prisma.adminUser.findUnique({
+          where: {
+            id: problem.adminUserId,
+          },
+        });
         return {
           ...problem,
-          waitingDate: round(differenceInDays),
+          departmentName: department?.name,
+          adminUserName: adminUser?.fullName,
         };
       })
     );
@@ -253,10 +258,34 @@ const problemReport = async (
             }
           : {}),
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
+
+    const problemsPromise = await Promise.all(
+      problems.map(async (problem) => {
+        const department = await prisma.department.findUnique({
+          where: {
+            id: problem.departmentId,
+          },
+        });
+        const adminUser = await prisma.adminUser.findUnique({
+          where: {
+            id: problem.adminUserId,
+          },
+        });
+        return {
+          ...problem,
+          departmentName: department?.name,
+          adminUserName: adminUser?.fullName,
+        };
+      })
+    );
+
     res.status(200).json({
       message: "Problem fetched successfully",
-      data: problems,
+      data: problemsPromise,
     });
   } catch (error) {
     // eslint-disable-next-line no-console

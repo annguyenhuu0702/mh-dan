@@ -12,7 +12,7 @@ const comparePassword = (password: string, hash: string) => {
 
 const createTokenAdmin = (user: Admin) => {
   return jwt.sign(
-    { id: user.id, fullName: user.fullName },
+    { id: user.id, fullName: user.fullName, role: "superAdmin" },
     process.env.JWT_SECRET,
     {
       expiresIn: "24d",

@@ -11,7 +11,31 @@ const authCommonMiddleware = async (
 ) => {
   try {
     const accessToken = req.headers?.authorization?.split(" ")[1] || "";
-    const { id } = jwt.decode(accessToken) as { id: number };
+    console.log(
+      "🚀 ~ file: authCommonMiddleware.ts:14 ~ accessToken:",
+      accessToken
+    );
+    const { id, role } = jwt.decode(accessToken) as {
+      id: number;
+      role: string;
+    };
+    console.log(
+      "🚀 ~ file: authCommonMiddleware.ts:15 ~ const{id,role}=jwt.decode ~ id:",
+      id,
+      role
+    );
+
+    const adminUser = await prisma.adminUser.findUnique({
+      where: {
+        id,
+        role,
+      },
+    });
+    if (adminUser) {
+      req.user = omit(adminUser, ["hash"]);
+      return next();
+    }
+
     const admin = await prisma.admin.findUnique({
       where: {
         id,
@@ -27,15 +51,7 @@ const authCommonMiddleware = async (
       );
       return next();
     }
-    const adminUser = await prisma.adminUser.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (adminUser) {
-      req.user = omit(adminUser, ["hash"]);
-      return next();
-    }
+
     throw new BadRequest({
       message: "Unauthorized",
     });

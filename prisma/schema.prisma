@@ -13,6 +13,7 @@ model Admin {
   userName   String
   fullName   String
   hash       String
+  role       String?
   adminUsers AdminUser[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
@@ -55,6 +56,7 @@ model Problem {
   status         String
   processingDate DateTime?
   note           String?
+  reciever       String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   deleted        DateTime?
