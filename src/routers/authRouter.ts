@@ -27,25 +27,17 @@ authRouter.get(
       .json({ message: "Success", data: omit(req.user, ["hash"]) });
   }
 );
-authRouter.put(
-  "/admin/change-password",
-  [authCommonMiddleware],
-  changePasswordAdmin
-);
-authRouter.put(
-  "/admin-user/change-password",
-  [authCommonMiddleware],
-  changePasswordAdminUser
-);
+authRouter.put("/change-password", [authCommonMiddleware], changePasswordAdmin);
+// authRouter.put(
+//   "/admin-user/change-password",
+//   [authCommonMiddleware],
+//   changePasswordAdminUser
+// );
 
-authRouter.put(
-  "/admin/update-profile",
-  [authCommonMiddleware],
-  updateProfileAdmin
-);
+authRouter.put("/update-profile", [authCommonMiddleware], updateProfileAdmin);
 
-authRouter.put(
-  "/admin-user/update-profile",
-  [authCommonMiddleware],
-  updateProfileAdminUser
-);
+// authRouter.put(
+//   "/admin-user/update-profile",
+//   [authCommonMiddleware],
+//   updateProfileAdminUser
+// );

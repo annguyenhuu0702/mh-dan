@@ -5,7 +5,7 @@ import { BadRequest } from "../../middlewares/request-handlers";
 
 const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { userName, fullName, password } = req.body;
+    const { userName, fullName, password, role } = req.body;
 
     const admin = await prisma.admin.findFirst({
       where: {
@@ -23,6 +23,7 @@ const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
         userName,
         fullName,
         hash,
+        role,
       },
     });
 
