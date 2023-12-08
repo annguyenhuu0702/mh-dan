@@ -1,13 +1,11 @@
 import { Request, Response, Router } from "express";
-import passport from "passport";
-import { authCommonMiddleware } from "../middlewares/auth";
 import { omit } from "lodash";
+import passport from "passport";
 import {
   changePasswordAdmin,
-  changePasswordAdminUser,
   updateProfileAdmin,
-  updateProfileAdminUser,
 } from "../controllers/authController";
+import { authCommonMiddleware } from "../middlewares/auth";
 
 export const authRouter = Router();
 
@@ -28,16 +26,5 @@ authRouter.get(
   }
 );
 authRouter.put("/change-password", [authCommonMiddleware], changePasswordAdmin);
-// authRouter.put(
-//   "/admin-user/change-password",
-//   [authCommonMiddleware],
-//   changePasswordAdminUser
-// );
 
 authRouter.put("/update-profile", [authCommonMiddleware], updateProfileAdmin);
-
-// authRouter.put(
-//   "/admin-user/update-profile",
-//   [authCommonMiddleware],
-//   updateProfileAdminUser
-// );

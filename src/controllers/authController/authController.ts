@@ -1,7 +1,8 @@
+import { AdminUser } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
-import { comparePassword, hashPassword } from "../../plugins/auth";
+import { ROLE } from "../../constants/role";
 import { prisma } from "../../db";
-import { Admin, AdminUser } from "@prisma/client";
+import { comparePassword, hashPassword } from "../../plugins/auth";
 
 const changePasswordAdminUser = async (
   req: Request,
@@ -35,20 +36,34 @@ const changePasswordAdmin = async (
   next: NextFunction
 ) => {
   try {
-    const user = req.user as Admin;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const user = req.user as any;
     const { currentPassword, newPassword } = req.body;
     const compareHash = comparePassword(currentPassword, user.hash);
     if (compareHash) {
       throw new Error("New password must be different from old password");
     }
     const hash = hashPassword(newPassword);
-    await prisma.admin.update({
+    if (user.role === ROLE.SUPER_ADMIN) {
+      await prisma.admin.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          hash,
+        },
+      });
+    }
+    await prisma.adminUser.update({
       where: {
         id: user.id,
       },
       data: {
         hash,
       },
+    });
+    res.status(200).json({
+      message: "Change password success",
     });
   } catch (error) {
     next(error);
@@ -61,9 +76,22 @@ const updateProfileAdmin = async (
   next: NextFunction
 ) => {
   try {
-    const user = req.user as Admin;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const user = req.user as any;
     const { fullName, userName } = req.body;
-    await prisma.admin.update({
+    if (user.role === ROLE.SUPER_ADMIN) {
+      await prisma.admin.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          fullName,
+          userName,
+        },
+      });
+    }
+
+    await prisma.adminUser.update({
       where: {
         id: user.id,
       },
@@ -71,6 +99,9 @@ const updateProfileAdmin = async (
         fullName,
         userName,
       },
+    });
+    res.status(200).json({
+      message: "Update profile success",
     });
   } catch (error) {
     next(error);
@@ -100,8 +131,8 @@ const updateProfileAdminUser = async (
 };
 
 export {
-  changePasswordAdminUser,
   changePasswordAdmin,
+  changePasswordAdminUser,
   updateProfileAdmin,
   updateProfileAdminUser,
 };

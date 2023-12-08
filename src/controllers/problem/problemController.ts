@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import moment from "moment";
 import { ROLE } from "../../constants/role";
 import { prisma } from "../../db";
+import { PROBLEM_STATUS } from "../../constants/problem";
 
 const createProblem = async (
   req: Request,
@@ -52,6 +53,7 @@ const updateProblem = async (
     const { id } = req.params;
     const { adminUserId, title, industry, contact, status, note, reciever } =
       req.body;
+
     const problem = await prisma.problem.update({
       where: {
         id: Number(id),
@@ -66,6 +68,18 @@ const updateProblem = async (
         reciever,
       },
     });
+
+    if (problem.status === PROBLEM_STATUS.PROCESSED) {
+      await prisma.problem.update({
+        where: {
+          id: Number(id),
+        },
+        data: {
+          processingDate: moment().toDate(),
+        },
+      });
+    }
+
     res.status(200).json({
       message: "Problem updated",
       data: problem,
