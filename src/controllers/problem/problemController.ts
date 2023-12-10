@@ -271,8 +271,10 @@ const problemReport = async (
   next: NextFunction
 ) => {
   try {
-    const { startDate, endDate, departmentId, industry } = req.query;
-
+    const { startDate, endDate, departmentId, industry, page, limit } =
+      req.query;
+    const take = Number(limit) || 10;
+    const skip = ((Number(page) || 1) - 1) * take;
     const problems = await prisma.problem.findMany({
       where: {
         ...(startDate && endDate
@@ -294,6 +296,8 @@ const problemReport = async (
             }
           : {}),
       },
+      take,
+      skip,
       orderBy: {
         createdAt: "desc",
       },
