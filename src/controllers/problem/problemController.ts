@@ -2,9 +2,9 @@
 import { Problem } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import moment from "moment";
+import { PROBLEM_STATUS } from "../../constants/problem";
 import { ROLE } from "../../constants/role";
 import { prisma } from "../../db";
-import { PROBLEM_STATUS } from "../../constants/problem";
 
 const createProblem = async (
   req: Request,
@@ -51,10 +51,24 @@ const updateProblem = async (
 ) => {
   try {
     const { id } = req.params;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const user = req.user as any;
     const { adminUserId, title, industry, contact, status, note, reciever } =
       req.body;
 
-    const problem = await prisma.problem.update({
+    const problem = await prisma.problem.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (user.role !== ROLE.SUPER_ADMIN && problem?.departmentId !== user.id) {
+      return res.status(403).json({
+        message: "You are not allowed to update this problem",
+      });
+    }
+
+    const newProblem = await prisma.problem.update({
       where: {
         id: Number(id),
       },
@@ -69,7 +83,7 @@ const updateProblem = async (
       },
     });
 
-    if (problem.status === PROBLEM_STATUS.PROCESSED) {
+    if (newProblem.status === PROBLEM_STATUS.PROCESSED) {
       await prisma.problem.update({
         where: {
           id: Number(id),
@@ -82,7 +96,7 @@ const updateProblem = async (
 
     res.status(200).json({
       message: "Problem updated",
-      data: problem,
+      data: newProblem,
     });
   } catch (error) {
     next(error);
@@ -233,9 +247,17 @@ const getProblemById = async (
         id: Number(id),
       },
     });
+
+    const processingDate = moment(problem?.processingDate);
+    const createdAt = moment(problem?.createdAt);
+    const waittingTime = processingDate.diff(createdAt, "days");
+
     res.status(200).json({
       message: "Problem fetched successfully",
-      data: problem,
+      data: {
+        ...problem,
+        waittingTime,
+      },
     });
   } catch (error) {
     console.log("🚀 ~ file: problemController.ts:222 ~ error:", error);
