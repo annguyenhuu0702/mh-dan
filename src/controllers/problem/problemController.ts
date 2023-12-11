@@ -170,10 +170,14 @@ const getAllProblem = async (
               id: problem.adminUserId,
             },
           });
+          const processingDate = moment(problem?.processingDate);
+          const createdAt = moment(problem?.createdAt);
+          const waittingTime = processingDate.diff(createdAt, "days");
           return {
             ...problem,
             departmentName: department?.name,
             adminUserName: adminUser?.fullName,
+            waittingTime,
           };
         })
       );
@@ -211,10 +215,14 @@ const getAllProblem = async (
             id: problem.adminUserId,
           },
         });
+        const processingDate = moment(problem?.processingDate);
+        const createdAt = moment(problem?.createdAt);
+        const waittingTime = processingDate.diff(createdAt, "days");
         return {
           ...problem,
           departmentName: department?.name,
           adminUserName: adminUser?.fullName,
+          waittingTime,
         };
       })
     );
@@ -315,10 +323,15 @@ const problemReport = async (
             id: problem.adminUserId,
           },
         });
+        const processingDate = moment(problem?.processingDate);
+        const createdAt = moment(problem?.createdAt);
+        const waittingTime = processingDate.diff(createdAt, "days");
+
         return {
           ...problem,
           departmentName: department?.name,
           adminUserName: adminUser?.fullName,
+          waittingTime,
         };
       })
     );
