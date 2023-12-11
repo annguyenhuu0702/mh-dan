@@ -11,7 +11,23 @@ const problemMiddleware = async (
 ) => {
   try {
     const accessToken = req.headers?.authorization?.split(" ")[1] || "";
-    const { id } = jwt.decode(accessToken) as { id: number };
+
+    const { id, role } = jwt.decode(accessToken) as {
+      id: number;
+      role: string;
+    };
+
+    const adminUser = await prisma.adminUser.findUnique({
+      where: {
+        id,
+        role,
+      },
+    });
+    if (adminUser) {
+      req.user = omit(adminUser, ["hash"]);
+      return next();
+    }
+
     const admin = await prisma.admin.findUnique({
       where: {
         id,
@@ -27,15 +43,7 @@ const problemMiddleware = async (
       );
       return next();
     }
-    const adminUser = await prisma.adminUser.findUnique({
-      where: {
-        id,
-      },
-    });
-    if (adminUser) {
-      req.user = omit(adminUser, ["hash"]);
-      return next();
-    }
+
     throw new BadRequest({
       message: "Unauthorized",
     });
