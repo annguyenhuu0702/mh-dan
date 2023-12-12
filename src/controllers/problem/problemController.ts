@@ -5,6 +5,8 @@ import moment from "moment";
 import { PROBLEM_STATUS } from "../../constants/problem";
 import { ROLE } from "../../constants/role";
 import { prisma } from "../../db";
+import { BadRequest } from "../../middlewares/request-handlers";
+import { convertDurationTodateRanges, dateToISOString } from "../../utils/Date";
 
 const createProblem = async (
   req: Request,
@@ -347,11 +349,80 @@ const problemReport = async (
   }
 };
 
+const problemStatistical = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const pareseStartDate = moment(startDate as string).toDate();
+    const pareseEndDate = moment(endDate as string).toDate();
+
+    if (!startDate || !endDate) {
+      throw new BadRequest({
+        message: "Start date and end date are required",
+      });
+    }
+
+    if (
+      startDate &&
+      endDate &&
+      moment(dateToISOString(pareseStartDate)).isAfter(
+        moment(dateToISOString(pareseEndDate))
+      )
+    ) {
+      throw new BadRequest({
+        message: "Start date must be before end date",
+      });
+    }
+    const dateRanges = convertDurationTodateRanges(
+      pareseStartDate,
+      pareseEndDate
+    );
+
+    const problemStats = await prisma.problem.findMany({
+      where: {
+        createdAt: {
+          gte: pareseStartDate,
+          lte: pareseEndDate,
+        },
+      },
+    });
+
+    const reports = await Promise.all(
+      dateRanges.map(async (dateRange) => {
+        const problems = problemStats.filter(
+          (problem) =>
+            moment(problem.createdAt).isSameOrAfter(moment(dateRange)) &&
+            moment(problem.createdAt).isSameOrBefore(
+              moment(dateRange).endOf("days")
+            )
+        );
+        const total = problems.length;
+        return {
+          totalProblem: total,
+          date: dateRange,
+        };
+      })
+    );
+    res.status(200).json({
+      message: "Problem fetched successfully",
+      data: reports,
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log("🚀 ~ file: problemController.ts:268 ~ error:", error);
+    next(error);
+  }
+};
+
 export {
   createProblem,
   deleteProblems,
   getAllProblem,
   getProblemById,
   problemReport,
+  problemStatistical,
   updateProblem,
 };

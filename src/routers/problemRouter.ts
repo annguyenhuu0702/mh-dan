@@ -5,6 +5,7 @@ import {
   getAllProblem,
   getProblemById,
   problemReport,
+  problemStatistical,
   updateProblem,
 } from "../controllers/problem";
 import { adminMiddleware } from "../middlewares/auth/adminMiddleware";
@@ -22,3 +23,4 @@ problemRouter.get(
   [adminMiddleware],
   problemReport
 );
+problemRouter.get("/statistical", [adminMiddleware], problemStatistical);
