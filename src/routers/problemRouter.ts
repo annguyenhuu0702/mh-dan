@@ -23,4 +23,4 @@ problemRouter.get(
   [adminMiddleware],
   problemReport
 );
-problemRouter.get("/statistical", [adminMiddleware], problemStatistical);
+problemRouter.get("/report/statistical", [adminMiddleware], problemStatistical);

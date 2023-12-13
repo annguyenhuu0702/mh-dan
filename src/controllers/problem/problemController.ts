@@ -356,8 +356,8 @@ const problemStatistical = async (
 ) => {
   try {
     const { startDate, endDate } = req.query;
-    const pareseStartDate = moment(startDate as string).toDate();
-    const pareseEndDate = moment(endDate as string).toDate();
+    const convertStartDate = moment(startDate as string).toDate();
+    const convertEndDate = moment(endDate as string).toDate();
 
     if (!startDate || !endDate) {
       throw new BadRequest({
@@ -368,8 +368,8 @@ const problemStatistical = async (
     if (
       startDate &&
       endDate &&
-      moment(dateToISOString(pareseStartDate)).isAfter(
-        moment(dateToISOString(pareseEndDate))
+      moment(dateToISOString(convertStartDate)).isAfter(
+        moment(dateToISOString(convertEndDate))
       )
     ) {
       throw new BadRequest({
@@ -377,15 +377,15 @@ const problemStatistical = async (
       });
     }
     const dateRanges = convertDurationTodateRanges(
-      pareseStartDate,
-      pareseEndDate
+      convertStartDate,
+      convertEndDate
     );
 
     const problemStats = await prisma.problem.findMany({
       where: {
         createdAt: {
-          gte: pareseStartDate,
-          lte: pareseEndDate,
+          gte: convertStartDate,
+          lte: convertEndDate,
         },
       },
     });
