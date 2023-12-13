@@ -313,6 +313,29 @@ const problemReport = async (
       },
     });
 
+    const total = await prisma.problem.count({
+      where: {
+        ...(startDate && endDate
+          ? {
+              createdAt: {
+                gte: moment(startDate as string).toDate(),
+                lte: moment(endDate as string).toDate(),
+              },
+            }
+          : {}),
+        ...(departmentId
+          ? {
+              departmentId: Number(departmentId),
+            }
+          : {}),
+        ...(industry
+          ? {
+              industry: industry as string,
+            }
+          : {}),
+      },
+    });
+
     const problemsPromise = await Promise.all(
       problems.map(async (problem) => {
         const department = await prisma.department.findUnique({
@@ -340,7 +363,14 @@ const problemReport = async (
 
     res.status(200).json({
       message: "Problem fetched successfully",
-      data: problemsPromise,
+      data: {
+        data: problemsPromise,
+        meta: {
+          page,
+          limit,
+          total,
+        },
+      },
     });
   } catch (error) {
     // eslint-disable-next-line no-console
