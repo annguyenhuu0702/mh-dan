@@ -401,8 +401,9 @@ const problemStatistical = async (
         );
         const total = problems.length;
         return {
+          startDate: dateRange,
+          endDate: dateRange,
           totalProblem: total,
-          date: dateRange,
         };
       })
     );
